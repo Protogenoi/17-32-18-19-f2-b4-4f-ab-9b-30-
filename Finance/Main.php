@@ -10,6 +10,9 @@ if (isset($fferror)) {
 $EXECUTE = filter_input(INPUT_GET, 'EXECUTE', FILTER_SANITIZE_SPECIAL_CHARS);
 $PAYMENT = filter_input(INPUT_GET, 'PAYMENT', FILTER_SANITIZE_SPECIAL_CHARS);
 
+$DATETO = filter_input(INPUT_GET, 'DATETO', FILTER_SANITIZE_SPECIAL_CHARS);
+$DATEFROM = filter_input(INPUT_GET, 'DATEFROM', FILTER_SANITIZE_SPECIAL_CHARS);
+
 include('../includes/ADL_PDO_CON.php');
 ?>
 <!DOCTYPE html>
@@ -42,6 +45,22 @@ include('../includes/ADL_PDO_CON.php');
                 yearRange: "-100:-0"
             });
         });
+        $(function () {
+            $("#DATETO").datepicker({
+                dateFormat: 'yy-mm-dd',
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "-100:-0"
+            });
+        });
+        $(function () {
+            $("#DATEFROM").datepicker({
+                dateFormat: 'yy-mm-dd',
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "-100:-0"
+            });
+        });        
     </script>
 </head>
 <body>
@@ -58,7 +77,18 @@ include('../includes/ADL_PDO_CON.php');
         <div class="col-md-12">
             <?php
             
+            if(isset($DATETO)) {
+                
+            $query = $pdo->prepare("SELECT statement_type, DATE(statement_date) AS DATE, statement_amount, statement_note FROM statement WHERE DATE(statement_date) BETWEEN :DATEFROM AND :DATETO");
+            $query->bindParam(':DATETO', $DATETO, PDO::PARAM_STR);
+            $query->bindParam(':DATEFROM', $DATEFROM, PDO::PARAM_STR);
+                
+            } else {
+            
             $query = $pdo->prepare("SELECT statement_type, DATE(statement_date) AS DATE, statement_amount, statement_note FROM statement");
+            
+            }
+            
             $query->execute();
             if ($query->rowCount() > 0) { ?>
             
@@ -183,7 +213,35 @@ include('../includes/ADL_PDO_CON.php');
         <h4 class="modal-title">Search payment history</h4>
       </div>
       <div class="modal-body">
-        <p>Some text in the modal.</p>
+<form class="form-horizontal" action="" method="GET">
+<fieldset>
+
+<div class="form-group">
+  <label class="col-md-4 control-label" for="DATEFROM">Date from</label>  
+  <div class="col-md-4">
+  <input id="DATEFROM" name="DATEFROM" type="text" placeholder="" class="form-control input-md" required="" value="<?php if(isset($DATEFROM)) { echo $DATEFROM; } ?>">
+    
+  </div>
+</div>
+
+<div class="form-group">
+  <label class="col-md-4 control-label" for="DATETO">Date to</label>  
+  <div class="col-md-4">
+  <input id="DATETO" name="DATETO" type="text" placeholder="" class="form-control input-md" required="" value="<?php if(isset($DATETO)) { echo $DATETO; } ?>">
+    
+  </div>
+</div>    
+
+<div class="form-group">
+  <label class="col-md-4 control-label" for=""></label>
+  <div class="col-md-8">
+    <button id="" name="" class="btn btn-success">Search</button>
+    <a id="CANCEL" name="CANCEL" class="btn btn-danger" data-dismiss="modal">Cancel</a>
+  </div>
+</div>
+
+</fieldset>
+</form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
