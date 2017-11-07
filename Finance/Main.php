@@ -63,7 +63,7 @@ $EXECUTE = filter_input(INPUT_GET, 'EXECUTE', FILTER_SANITIZE_SPECIAL_CHARS);
       </div>
       <div class="modal-body">
 
-<form class="form-horizontal">
+<form class="form-horizontal" action="php/Payments.php?EXECUTE=1" method="POST">
 <fieldset>
 
 
