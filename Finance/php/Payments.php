@@ -8,7 +8,8 @@ if (isset($fferror) && $fferror == '1') {
     error_reporting(E_ALL);
     
 }
-$EXECUTE = filter_input(INPUT_GET, 'EXECUTE', FILTER_SANITIZE_SPECIAL_CHARS);
+$EXECUTE = filter_input(INPUT_GET, 'EXECUTE', FILTER_SANITIZE_NUMBER_INT);
+$SID = filter_input(INPUT_GET, 'SID', FILTER_SANITIZE_NUMBER_INT);
 
 $TYPE = filter_input(INPUT_POST, 'TYPE', FILTER_SANITIZE_SPECIAL_CHARS);
 $DATE = filter_input(INPUT_POST, 'DATE', FILTER_SANITIZE_SPECIAL_CHARS);
@@ -28,6 +29,19 @@ if(isset($EXECUTE)) {
         $ADD_PAYMENT->execute();
         
         header('Location: ../../Finance/Main.php?PAYMENT=ADDED'); die;
+        
+    }
+    if($EXECUTE== 2) {
+        
+        $EDIT_PAYMENT = $pdo->prepare("UPDATE statement set statement_date=:DATE, statement_type=:TYPE, statement_amount=:AMOUNT, statement_note=:NOTE WHERE statement_id=:SID");
+        $EDIT_PAYMENT->bindParam(':DATE',$DATE, PDO::PARAM_STR);
+        $EDIT_PAYMENT->bindParam(':TYPE',$TYPE, PDO::PARAM_STR);
+        $EDIT_PAYMENT->bindParam(':AMOUNT',$AMOUNT, PDO::PARAM_STR);
+        $EDIT_PAYMENT->bindParam(':NOTE',$NOTE, PDO::PARAM_STR);
+        $EDIT_PAYMENT->bindParam(':SID',$SID, PDO::PARAM_STR);
+        $EDIT_PAYMENT->execute();
+        
+        header('Location: ../../Finance/Main.php?PAYMENT=UPDATED'); die;        
         
     }
 }
