@@ -7,8 +7,9 @@ if (isset($fferror)) {
     }
 }
 
-$EXECUTE = filter_input(INPUT_GET, 'EXECUTE', FILTER_SANITIZE_SPECIAL_CHARS);
+$EXECUTE = filter_input(INPUT_GET, 'EXECUTE', FILTER_SANITIZE_NUMBER_INT);
 $PAYMENT = filter_input(INPUT_GET, 'PAYMENT', FILTER_SANITIZE_SPECIAL_CHARS);
+$SID = filter_input(INPUT_GET, 'SID', FILTER_SANITIZE_NUMBER_INT);
 
 $DATETO = filter_input(INPUT_GET, 'DATETO', FILTER_SANITIZE_SPECIAL_CHARS);
 $DATEFROM = filter_input(INPUT_GET, 'DATEFROM', FILTER_SANITIZE_SPECIAL_CHARS);
@@ -77,6 +78,55 @@ include('../includes/ADL_PDO_CON.php');
         <div class="col-md-12">
             <?php
             
+            if(isset($EXECUTE)) {
+                if($EXECUTE == 1) {
+                    
+        $QRY_EDIT = $pdo->prepare("SELECT statement_type, DATE(statement_date) AS DATE, statement_amount, statement_note FROM statement WHERE statement_id=:SID");
+        $QRY_EDIT->bindParam(':SID', $SID, PDO::PARAM_STR);        
+        $QRY_EDIT->execute();
+        $row = $QRY_EDIT->fetch(PDO::FETCH_ASSOC);     
+        
+       if ($QRY_EDIT->rowCount() > 0) { 
+           
+         $EDIT_DATE=$row['DATE'];
+         $EDIT_TYPE=$row['statement_type'];
+         $EDIT_AMOUNT=$row['statement_amount'];
+         $EDIT_NOTE=$row['statement_note'];
+           
+           ?>
+
+<div class="col-md-12">
+<div class="col-md-8">            
+            
+            <table class="table table-condensed">
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Notes</th>
+                    <th>Update</th>
+                </tr>  
+                <tr>
+                    <td><?php echo $EDIT_DATE; ?></td>
+                            <td><select name="TYPE">
+                                    <option value="IN" <?php if(isset($EDIT_TYPE) && $EDIT_TYPE == 'IN') { echo "selected"; } ?> >IN</option>
+                                    <option value="OUT" <?php if(isset($EDIT_TYPE) && $EDIT_TYPE == 'OUT') { echo "selected"; } ?> >OUT</option>
+                        </select></td>
+                    <td><?php echo $EDIT_AMOUNT; ?></td>
+                    <td><?php echo $EDIT_NOTE; ?></td>
+                    <td><a href="php/Payments.php?SID=<?php echo $SID; ?>&EXECUTE=2" class="btn btn-warning btn-sm"><i class="fa fa-save"></i></a></td>
+                </tr>
+            </table>
+</div>
+</div>
+                    
+        <?php        
+        
+       }
+       
+       }
+            }
+            
             if(isset($DATETO)) {
                 
     /*require_once(__DIR__ . '/models/PayDatedModel.php');
@@ -108,7 +158,7 @@ include('../includes/ADL_PDO_CON.php');
         
         $TOTAL_BALANCE=$TOTAL_IN-$TOTAL_OUT;                
                 
-            $query = $pdo->prepare("SELECT statement_type, DATE(statement_date) AS DATE, statement_amount, statement_note FROM statement WHERE DATE(statement_date) BETWEEN :DATEFROM AND :DATETO");
+            $query = $pdo->prepare("SELECT statement_id, statement_type, DATE(statement_date) AS DATE, statement_amount, statement_note FROM statement WHERE DATE(statement_date) BETWEEN :DATEFROM AND :DATETO");
             $query->bindParam(':DATETO', $DATETO, PDO::PARAM_STR);
             $query->bindParam(':DATEFROM', $DATEFROM, PDO::PARAM_STR);
                 
@@ -134,7 +184,7 @@ include('../includes/ADL_PDO_CON.php');
         
         $TOTAL_BALANCE=$TOTAL_IN-$TOTAL_OUT;
             
-            $query = $pdo->prepare("SELECT statement_type, DATE(statement_date) AS DATE, statement_amount, statement_note FROM statement");
+            $query = $pdo->prepare("SELECT statement_id, statement_type, DATE(statement_date) AS DATE, statement_amount, statement_note FROM statement");
             
             }
             
@@ -161,8 +211,10 @@ include('../includes/ADL_PDO_CON.php');
             <table class="table table-condensed">
                 <tr>
                     <th>Date</th>
+                    <th>Type</th>
                     <th>Amount</th>
                     <th>Notes</th>
+                    <th>Update</th>
                 </tr>
             <?php
             
@@ -172,6 +224,7 @@ include('../includes/ADL_PDO_CON.php');
                 $DB_TYPE=$result['statement_type'];
                 $DB_AMOUNT=$result['statement_amount'];
                 $DB_NOTE=$result['statement_note'];
+                $DB_ID=$result['statement_id'];
                 
                 switch ($DB_TYPE):
                     case "IN":
@@ -188,8 +241,10 @@ include('../includes/ADL_PDO_CON.php');
                 
                 <tr>
                     <td><?php echo $DB_DATE; ?></td>
+                    <td><?php echo $DB_TYPE; ?></td>
                     <td><span class="label label-<?php echo $LABEL; ?>"><?php echo $DB_AMOUNT; ?></span></td>
                     <td><?php echo $DB_NOTE; ?></td>
+                    <td><a href="?SID=<?php echo $DB_ID; ?>&EXECUTE=1" class="btn btn-warning btn-sm"><i class="fa fa-save"></i></a></td>
                 </tr>
             
             <?php    } ?> </table>
