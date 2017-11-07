@@ -61,7 +61,15 @@ include('../includes/ADL_PDO_CON.php');
                 changeYear: true,
                 yearRange: "-100:-0"
             });
-        });        
+        });  
+        $(function () {
+            $("#EDITDATE").datepicker({
+                dateFormat: 'yy-mm-dd',
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "-100:-0"
+            });
+        });           
     </script>
 </head>
 <body>
@@ -97,8 +105,9 @@ include('../includes/ADL_PDO_CON.php');
 
 <div class="col-md-12">
 <div class="col-md-8">            
-            
+            <form action="php/Payments.php?SID=<?php echo $SID; ?>&EXECUTE=2" method="POST">
             <table class="table table-condensed">
+                
                 <tr>
                     <th>Date</th>
                     <th>Type</th>
@@ -107,16 +116,18 @@ include('../includes/ADL_PDO_CON.php');
                     <th>Update</th>
                 </tr>  
                 <tr>
-                    <td><?php echo $EDIT_DATE; ?></td>
+                    
+                    <td><input id="EDITDATE" name="DATE" type="text" placeholder="" class="form-control input-md" required="" value="<?php echo $EDIT_DATE; ?>" ></td>
                             <td><select name="TYPE">
                                     <option value="IN" <?php if(isset($EDIT_TYPE) && $EDIT_TYPE == 'IN') { echo "selected"; } ?> >IN</option>
                                     <option value="OUT" <?php if(isset($EDIT_TYPE) && $EDIT_TYPE == 'OUT') { echo "selected"; } ?> >OUT</option>
                         </select></td>
-                    <td><?php echo $EDIT_AMOUNT; ?></td>
-                    <td><?php echo $EDIT_NOTE; ?></td>
-                    <td><a href="php/Payments.php?SID=<?php echo $SID; ?>&EXECUTE=2" class="btn btn-warning btn-sm"><i class="fa fa-save"></i></a></td>
+                    <td><input id="AMOUNT" name="AMOUNT" class="form-control" placeholder="" type="text" required="" value="<?php echo $EDIT_AMOUNT; ?>" ></td>
+                    <td><textarea class="form-control" id="NOTE" name="NOTE"><?php echo $EDIT_NOTE; ?></textarea></td>
+                    <td><button class="btn btn-warning btn-sm"><i class="fa fa-save"></i></button></td>
                 </tr>
-            </table>
+                  
+            </table></form>
 </div>
 </div>
                     
