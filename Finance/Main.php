@@ -222,7 +222,6 @@ include('../includes/ADL_PDO_CON.php');
             <table class="table table-condensed">
                 <tr>
                     <th>Date</th>
-                    <th>Type</th>
                     <th>Amount</th>
                     <th>Notes</th>
                     <th>Update</th>
@@ -252,7 +251,6 @@ include('../includes/ADL_PDO_CON.php');
                 
                 <tr>
                     <td><?php echo $DB_DATE; ?></td>
-                    <td><?php echo $DB_TYPE; ?></td>
                     <td><span class="label label-<?php echo $LABEL; ?>"><?php echo $DB_AMOUNT; ?></span></td>
                     <td><?php echo $DB_NOTE; ?></td>
                     <td><a href="?SID=<?php echo $DB_ID; ?>&EXECUTE=1" class="btn btn-warning btn-sm"><i class="fa fa-save"></i></a></td>
