@@ -79,11 +79,60 @@ include('../includes/ADL_PDO_CON.php');
             
             if(isset($DATETO)) {
                 
+    /*require_once(__DIR__ . '/models/PayDatedModel.php');
+    $PayDateModel = new PayDatedModel($pdo);
+    $list = $PayDateModel->getPayDatedModel($DATEFROM,$DATETO);
+    require_once(__DIR__ . '/views/PayDated-view.php');     */  
+                
+        $QRY_IN_SUM = $pdo->prepare("SELECT SUM(statement_amount) AS IN_AMOUNT FROM statement WHERE statement_type='IN' AND DATE(statement_date) BETWEEN :DATEFROM AND :DATETO");
+        $QRY_IN_SUM->bindParam(':DATETO', $DATETO, PDO::PARAM_STR);
+        $QRY_IN_SUM->bindParam(':DATEFROM', $DATEFROM, PDO::PARAM_STR);          
+        $QRY_IN_SUM->execute();
+        $row = $QRY_IN_SUM->fetch(PDO::FETCH_ASSOC);    
+        
+        $TOTAL_IN=$row['IN_AMOUNT'];
+                if(empty($TOTAL_IN)) {
+            $TOTAL_IN=0;
+        }
+        
+        $QRY_OUT_SUM = $pdo->prepare("SELECT SUM(statement_amount) AS OUT_AMOUNT FROM statement WHERE statement_type='OUT' AND DATE(statement_date) BETWEEN :DATEFROM AND :DATETO ");
+        $QRY_OUT_SUM->bindParam(':DATETO', $DATETO, PDO::PARAM_STR);
+        $QRY_OUT_SUM->bindParam(':DATEFROM', $DATEFROM, PDO::PARAM_STR);       
+        $QRY_OUT_SUM->execute();
+        $result = $QRY_OUT_SUM->fetch(PDO::FETCH_ASSOC);    
+        
+        $TOTAL_OUT=$result['OUT_AMOUNT']; 
+        if(empty($TOTAL_OUT)) {
+            $TOTAL_OUT=0;
+        }
+        
+        $TOTAL_BALANCE=$TOTAL_IN-$TOTAL_OUT;                
+                
             $query = $pdo->prepare("SELECT statement_type, DATE(statement_date) AS DATE, statement_amount, statement_note FROM statement WHERE DATE(statement_date) BETWEEN :DATEFROM AND :DATETO");
             $query->bindParam(':DATETO', $DATETO, PDO::PARAM_STR);
             $query->bindParam(':DATEFROM', $DATEFROM, PDO::PARAM_STR);
                 
             } else {
+                
+        $QRY_IN_SUM = $pdo->prepare("SELECT SUM(statement_amount) AS IN_AMOUNT FROM statement WHERE statement_type='IN'");
+        $QRY_IN_SUM->execute();
+        $row = $QRY_IN_SUM->fetch(PDO::FETCH_ASSOC);    
+        
+        $TOTAL_IN=$row['IN_AMOUNT'];
+                if(empty($TOTAL_IN)) {
+            $TOTAL_IN=0;
+        }
+        
+        $QRY_OUT_SUM = $pdo->prepare("SELECT SUM(statement_amount) AS OUT_AMOUNT FROM statement WHERE statement_type='OUT'");
+        $QRY_OUT_SUM->execute();
+        $result = $QRY_OUT_SUM->fetch(PDO::FETCH_ASSOC);    
+        
+        $TOTAL_OUT=$result['OUT_AMOUNT']; 
+        if(empty($TOTAL_OUT)) {
+            $TOTAL_OUT=0;
+        }
+        
+        $TOTAL_BALANCE=$TOTAL_IN-$TOTAL_OUT;
             
             $query = $pdo->prepare("SELECT statement_type, DATE(statement_date) AS DATE, statement_amount, statement_note FROM statement");
             
@@ -91,6 +140,23 @@ include('../includes/ADL_PDO_CON.php');
             
             $query->execute();
             if ($query->rowCount() > 0) { ?>
+            
+            <div class="col-md-2">
+            <table class="table table-condensed">
+                <tr>
+                    <th>IN</th>
+                    <th>OUT</th>
+                    <th>BALANCE</th>
+                </tr>
+                <tr>
+                    <td><span class="label label-success"><?php if(isset($TOTAL_IN)) { echo $TOTAL_IN; } ?></span></td>
+                    <td><span class="label label-danger"><?php if(isset($TOTAL_OUT)) { echo $TOTAL_OUT; } ?></span></td>
+                    <td><span class="label label-default"><?php if(isset($TOTAL_BALANCE)) { echo $TOTAL_BALANCE; } ?></span></td>
+                </tr>
+            </table>
+            </div>
+<div class="col-md-12">
+<div class="col-md-8">            
             
             <table class="table table-condensed">
                 <tr>
@@ -126,7 +192,10 @@ include('../includes/ADL_PDO_CON.php');
                     <td><?php echo $DB_NOTE; ?></td>
                 </tr>
             
-            <?php    } ?> </table> <?php  } ?>
+            <?php    } ?> </table>
+</div>
+ <?php  } ?>
+</div>
         </div>
         
     </div>
