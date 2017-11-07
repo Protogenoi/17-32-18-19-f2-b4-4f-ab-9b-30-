@@ -8,6 +8,9 @@ if (isset($fferror)) {
 }
 
 $EXECUTE = filter_input(INPUT_GET, 'EXECUTE', FILTER_SANITIZE_SPECIAL_CHARS);
+$PAYMENT = filter_input(INPUT_GET, 'PAYMENT', FILTER_SANITIZE_SPECIAL_CHARS);
+
+include('../includes/ADL_PDO_CON.php');
 ?>
 <!DOCTYPE html>
 <!-- 
@@ -51,6 +54,51 @@ $EXECUTE = filter_input(INPUT_GET, 'EXECUTE', FILTER_SANITIZE_SPECIAL_CHARS);
             <div class="col-md-4"><a data-toggle="modal" data-target="#AddModal" class="btn btn-default btn-lg"><i class="fa fa-plus"></i> Add a payment</a></div>
             </div>
         </div>
+        
+        <div class="col-md-12">
+            <?php
+            
+            $query = $pdo->prepare("SELECT statement_type, DATE(statement_date) AS DATE, statement_amount, statement_note FROM statement");
+            $query->execute();
+            if ($query->rowCount() > 0) { ?>
+            
+            <table class="table table-condensed">
+                <tr>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Notes</th>
+                </tr>
+            <?php
+            
+            while ($result = $query->fetch(PDO::FETCH_ASSOC)) { 
+                
+                $DB_DATE=$result['DATE'];
+                $DB_TYPE=$result['statement_type'];
+                $DB_AMOUNT=$result['statement_amount'];
+                $DB_NOTE=$result['statement_note'];
+                
+                switch ($DB_TYPE):
+                    case "IN":
+                        $LABEL="success";
+                        break;
+                    case "OUT":
+                        $LABEL="danger";
+                        break;
+                    default:
+                        $LABEL="default";
+                        endswitch;
+                
+                ?>
+                
+                <tr>
+                    <td><?php echo $DB_DATE; ?></td>
+                    <td><span class="label label-<?php echo $LABEL; ?>"><?php echo $DB_AMOUNT; ?></span></td>
+                    <td><?php echo $DB_NOTE; ?></td>
+                </tr>
+            
+            <?php    } ?> </table> <?php  } ?>
+        </div>
+        
     </div>
     
 <div id="AddModal" class="modal fade" role="dialog">
