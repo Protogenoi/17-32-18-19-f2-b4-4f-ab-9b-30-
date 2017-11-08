@@ -173,7 +173,10 @@ include('../includes/ADL_PDO_CON.php');
             $query->bindParam(':DATETO', $DATETO, PDO::PARAM_STR);
             $query->bindParam(':DATEFROM', $DATEFROM, PDO::PARAM_STR);
                 
-            } else {
+            }
+            
+            
+            else {
                 
         $QRY_IN_SUM = $pdo->prepare("SELECT SUM(statement_amount) AS IN_AMOUNT FROM statement WHERE statement_type='IN'");
         $QRY_IN_SUM->execute();
