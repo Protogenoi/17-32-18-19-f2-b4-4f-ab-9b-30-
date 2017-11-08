@@ -169,10 +169,6 @@ include('../includes/ADL_PDO_CON.php');
         
         $TOTAL_BALANCE=$TOTAL_IN-$TOTAL_OUT;                
                 
-            $query = $pdo->prepare("SELECT statement_id, statement_type, DATE(statement_date) AS DATE, statement_amount, statement_note FROM statement WHERE DATE(statement_date) BETWEEN :DATEFROM AND :DATETO");
-            $query->bindParam(':DATETO', $DATETO, PDO::PARAM_STR);
-            $query->bindParam(':DATEFROM', $DATEFROM, PDO::PARAM_STR);
-                
             }
             
             
@@ -198,12 +194,9 @@ include('../includes/ADL_PDO_CON.php');
         
         $TOTAL_BALANCE=$TOTAL_IN-$TOTAL_OUT;
             
-            $query = $pdo->prepare("SELECT statement_id, statement_type, DATE(statement_date) AS DATE, statement_amount, statement_note FROM statement");
             
             }
-            
-            $query->execute();
-            if ($query->rowCount() > 0) { ?>
+             ?>
             
             <div class="col-md-2">
             <table class="table table-condensed">
@@ -219,50 +212,26 @@ include('../includes/ADL_PDO_CON.php');
                 </tr>
             </table>
             </div>
-<div class="col-md-12">
-<div class="col-md-8">            
             
-            <table class="table table-condensed">
-                <tr>
-                    <th>Date</th>
-                    <th>Amount</th>
-                    <th>Notes</th>
-                    <th>Update</th>
-                </tr>
-            <?php
+            <?php 
             
-            while ($result = $query->fetch(PDO::FETCH_ASSOC)) { 
+            if(isset($DATETO)) {
                 
-                $DB_DATE=$result['DATE'];
-                $DB_TYPE=$result['statement_type'];
-                $DB_AMOUNT=$result['statement_amount'];
-                $DB_NOTE=$result['statement_note'];
-                $DB_ID=$result['statement_id'];
+     require_once(__DIR__ . '/models/PayDatedModel.php');
+    $PayDateModel = new PayDatedModel($pdo);
+    $list = $PayDateModel->getPayDatedModel($DATEFROM,$DATETO);
+    require_once(__DIR__ . '/views/PayDated-view.php');                  
                 
-                switch ($DB_TYPE):
-                    case "IN":
-                        $LABEL="success";
-                        break;
-                    case "OUT":
-                        $LABEL="danger";
-                        break;
-                    default:
-                        $LABEL="default";
-                        endswitch;
+            } else {
                 
-                ?>
+    require_once(__DIR__ . '/models/PayModel.php');
+    $PayDateModel = new PayDatedModel($pdo);
+    $list = $PayDateModel->getPayDatedModel();
+    require_once(__DIR__ . '/views/PayDated-view.php');                
                 
-                <tr>
-                    <td><?php echo $DB_DATE; ?></td>
-                    <td><span class="label label-<?php echo $LABEL; ?>"><?php echo $DB_AMOUNT; ?></span></td>
-                    <td><?php echo $DB_NOTE; ?></td>
-                    <td><a href="?SID=<?php echo $DB_ID; ?>&EXECUTE=1" class="btn btn-warning btn-sm"><i class="fa fa-save"></i></a></td>
-                </tr>
-            
-            <?php    } ?> </table>
-</div>
- <?php  } ?>
-</div>
+            }
+ ?> 
+
         </div>
         
     </div>
